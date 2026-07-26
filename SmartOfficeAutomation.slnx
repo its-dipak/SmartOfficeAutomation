@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="SmartOffice.API/SmartOffice.API.csproj" />
+  <Project Path="SmartOffice.Application/SmartOffice.Application.csproj" />
+  <Project Path="SmartOffice.Domain/SmartOffice.Domain.csproj" />
+  <Project Path="SmartOffice.Infrastructure/SmartOffice.Infrastructure.csproj" />
+  <Project Path="SmartOffice.Persistence/SmartOffice.Persistence.csproj" />
+</Solution>
