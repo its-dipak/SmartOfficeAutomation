@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartOffice.Application.DTOs.Department;
 using SmartOffice.Application.Interfaces;
@@ -6,6 +7,7 @@ namespace SmartOffice.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Admin,HR")]
 public class DepartmentController : ControllerBase
 {
     private readonly IDepartmentService _departmentService;
@@ -20,6 +22,7 @@ public class DepartmentController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var departments = await _departmentService.GetAllAsync();
+
         return Ok(departments);
     }
 
@@ -36,8 +39,10 @@ public class DepartmentController : ControllerBase
     }
 
     // POST: api/department
+    [Authorize(Roles = "Admin")]
     [HttpPost]
-    public async Task<IActionResult> Create(CreateDepartmentDto dto)
+    public async Task<IActionResult> Create(
+        [FromBody] CreateDepartmentDto dto)
     {
         var department = await _departmentService.CreateAsync(dto);
 
@@ -48,8 +53,11 @@ public class DepartmentController : ControllerBase
     }
 
     // PUT: api/department/5
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, UpdateDepartmentDto dto)
+    public async Task<IActionResult> Update(
+        int id,
+        [FromBody] UpdateDepartmentDto dto)
     {
         if (id != dto.Id)
             return BadRequest();
@@ -63,6 +71,7 @@ public class DepartmentController : ControllerBase
     }
 
     // DELETE: api/department/5
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

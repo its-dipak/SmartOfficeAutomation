@@ -13,4 +13,9 @@ public class User
     public int RoleId { get; set; }
 
     public Role? Role { get; set; }
+
+    // =========================
+    // Employee Profile
+    // =========================
+    public Employee? Employee { get; set; }
 }

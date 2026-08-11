@@ -10,6 +10,5 @@ public class Department
 
     public bool IsActive { get; set; } = true;
 
-    // Navigation Property
     public ICollection<Employee> Employees { get; set; } = new List<Employee>();
 }

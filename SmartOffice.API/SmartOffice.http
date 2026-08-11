@@ -1,0 +1,243 @@
+@baseUrl = http://localhost:5262
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjEiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJhZG1pbkBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc4NTgzODA3OCwiaXNzIjoiU21hcnRPZmZpY2VBUEkiLCJhdWQiOiJTbWFydE9mZmljZUNsaWVudCJ9.E06wOqjAC6R69LQ3-wz0UpwdkYIuz7RL06HvQbTy82g
+##################################################
+# AUTH
+##################################################
+
+###
+# Register Admin User
+
+POST {{baseUrl}}/api/Auth/register
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "email": "admin@gmail.com",
+  "password": "Admin@123",
+  "roleId": 1
+}
+
+###
+
+# Login
+
+POST {{baseUrl}}/api/Auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Admin@123"
+}
+
+##################################################
+# DEPARTMENT
+##################################################
+
+###
+
+# Get All Departments (Requires Login)
+
+GET {{baseUrl}}/api/Department
+Authorization: Bearer {{token}}
+
+###
+
+# Get Department By Id
+
+GET {{baseUrl}}/api/Department/1
+Authorization: Bearer {{token}}
+
+###
+
+# Create Department (Admin)
+
+POST {{baseUrl}}/api/Department
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Information Technology",
+  "description": "Handles software development"
+}
+
+###
+
+# Update Department (Admin)
+
+PUT {{baseUrl}}/api/Department/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Information Technology",
+  "description": "Updated Description",
+  "isActive": true
+}
+
+###
+
+# Delete Department (Admin)
+
+DELETE {{baseUrl}}/api/Department/1
+Authorization: Bearer {{token}}
+
+##################################################
+# EMPLOYEE
+##################################################
+
+###
+
+# Get All Employees
+
+GET {{baseUrl}}/api/Employee
+Authorization: Bearer {{token}}
+
+###
+
+# Get Employee By Id
+
+GET {{baseUrl}}/api/Employee/1
+Authorization: Bearer {{token}}
+
+###
+
+# Create Employee
+
+POST {{baseUrl}}/api/Employee
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "employeeCode": "EMP001",
+  "firstName": "Dipak",
+  "lastName": "Yadav",
+  "email": "dipak@gmail.com",
+  "phone": "9827728122",
+  "designation": "Software Engineer",
+  "salary": 50000,
+  "joiningDate": "2026-08-02",
+  "departmentId": 1
+}
+
+###
+
+# Update Employee
+
+PUT {{baseUrl}}/api/Employee/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id": 1,
+  "employeeCode": "EMP001",
+  "firstName": "Dipak",
+  "lastName": "Yadav",
+  "email": "dipak@gmail.com",
+  "phone": "9827728122",
+  "designation": "Senior Software Engineer",
+  "salary": 65000,
+  "joiningDate": "2026-08-02",
+  "departmentId": 1,
+  "isActive": true
+}
+
+###
+
+# Delete Employee
+
+DELETE {{baseUrl}}/api/Employee/1
+Authorization: Bearer {{token}}
+
+##################################################
+# ATTENDANCE
+##################################################
+
+###
+
+# Check In
+
+POST {{baseUrl}}/api/Attendance/checkin
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "employeeId": 1,
+  "remarks": "Checked in from office"
+}
+
+###
+
+# Check Out
+
+POST {{baseUrl}}/api/Attendance/checkout
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "employeeId": 1,
+  "remarks": "Completed work"
+}
+
+###
+
+# Get All Attendance
+
+GET {{baseUrl}}/api/Attendance
+Authorization: Bearer {{token}}
+
+###
+
+# Get Attendance By Employee
+
+GET {{baseUrl}}/api/Attendance/employee/1
+Authorization: Bearer {{token}}
+##################################################
+# Get Employee Attendance
+##################################################
+
+GET {{baseUrl}}/api/Attendance/employee/1
+Authorization: Bearer {{token}}
+
+###
+
+##################################################
+# Update Department
+##################################################
+
+PUT {{baseUrl}}/api/Department/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "IT Department",
+  "description": "Updated IT Department",
+  "isActive": true
+}
+###
+# Update Employee
+
+PUT {{baseUrl}}/api/Employee/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id": 1,
+  "employeeCode": "EMP001",
+  "firstName": "Dipak",
+  "lastName": "Yadav",
+  "email": "dipak@gmail.com",
+  "phone": "9827728122",
+  "designation": "Senior Software Engineer",
+  "salary": 75000,
+  "joiningDate": "2026-08-02",
+  "departmentId": 1,
+  "isActive": true
+}
+###
+# Delete Employee
+
+DELETE {{baseUrl}}/api/Employee/1
+Authorization: Bearer {{token}}
