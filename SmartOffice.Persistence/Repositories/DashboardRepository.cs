@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartOffice.Application.DTOs.Dashboard;
+using SmartOffice.Application.Exceptions;
 using SmartOffice.Application.Interfaces;
 using SmartOffice.Persistence.Context;
 
@@ -104,7 +105,7 @@ public class DashboardRepository : IDashboardRepository
 
         if (employee == null)
         {
-            throw new Exception("Employee not found.");
+            throw new NotFoundException("Employee not found.");
         }
 
         var today =
