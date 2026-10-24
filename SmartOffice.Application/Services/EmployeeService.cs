@@ -77,7 +77,7 @@ public class EmployeeService : IEmployeeService
         await _repository.AddAsync(employee);
 
         return await GetByIdAsync(employee.Id)
-               ?? throw new Exception("Employee creation failed.");
+               ?? throw new InvalidOperationException("Employee creation failed.");
     }
 
     public async Task<bool> UpdateAsync(UpdateEmployeeDto dto)

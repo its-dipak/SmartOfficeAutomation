@@ -1,4 +1,5 @@
 using SmartOffice.Application.DTOs.Payroll;
+using SmartOffice.Application.Exceptions;
 using SmartOffice.Application.Interfaces;
 using SmartOffice.Domain.Entities;
 
@@ -63,7 +64,7 @@ public class PayrollService : IPayrollService
 
         if (employeeId == null)
         {
-            throw new Exception(
+            throw new NotFoundException(
                 "Employee profile is not linked to this user.");
         }
 
@@ -84,8 +85,11 @@ public class PayrollService : IPayrollService
 
         if (employee == null)
         {
-            throw new Exception("Employee not found.");
+            throw new NotFoundException("Employee not found.");
         }
+
+        ValidateAmounts(
+            dto.Month, dto.BasicSalary, dto.Allowance, dto.Deduction);
 
         var payroll = new Payroll
         {
@@ -122,6 +126,9 @@ public class PayrollService : IPayrollService
             return null;
         }
 
+        ValidateAmounts(
+            dto.Month, dto.BasicSalary, dto.Allowance, dto.Deduction);
+
         payroll.Month = dto.Month;
         payroll.Year = dto.Year;
         payroll.BasicSalary = dto.BasicSalary;
@@ -156,5 +163,30 @@ public class PayrollService : IPayrollService
         await _repository.SaveChangesAsync();
 
         return true;
+    }
+
+    private static void ValidateAmounts(
+        int month,
+        decimal basicSalary,
+        decimal allowance,
+        decimal deduction)
+    {
+        if (month < 1 || month > 12)
+        {
+            throw new BusinessRuleException(
+                "Month must be between 1 and 12.");
+        }
+
+        if (basicSalary < 0 || allowance < 0 || deduction < 0)
+        {
+            throw new BusinessRuleException(
+                "Salary, allowance and deduction cannot be negative.");
+        }
+
+        if (deduction > basicSalary + allowance)
+        {
+            throw new BusinessRuleException(
+                "Deduction cannot exceed basic salary plus allowance.");
+        }
     }
 }

@@ -1,4 +1,5 @@
 using SmartOffice.Application.DTOs.Leave;
+using SmartOffice.Application.Exceptions;
 using SmartOffice.Application.Interfaces;
 using SmartOffice.Domain.Entities;
 
@@ -8,6 +9,9 @@ public class LeaveService : ILeaveService
 {
     private readonly ILeaveRepository _repository;
     private readonly IUserRepository _userRepository;
+
+    private static readonly string[] AllowedStatuses =
+        { "Pending", "Approved", "Rejected" };
 
     public LeaveService(
         ILeaveRepository repository,
@@ -61,7 +65,7 @@ public class LeaveService : ILeaveService
 
         if (employeeId == null)
         {
-            throw new Exception(
+            throw new NotFoundException(
                 "Employee profile is not linked to this user.");
         }
 
@@ -82,8 +86,10 @@ public class LeaveService : ILeaveService
 
         if (employee == null)
         {
-            throw new Exception("Employee not found.");
+            throw new NotFoundException("Employee not found.");
         }
+
+        ValidateDateRange(dto.FromDate, dto.ToDate);
 
         var leave = new Leave
         {
@@ -112,7 +118,7 @@ public class LeaveService : ILeaveService
 
         if (employeeId == null)
         {
-            throw new Exception(
+            throw new NotFoundException(
                 "Employee profile is not linked to this user.");
         }
 
@@ -121,14 +127,10 @@ public class LeaveService : ILeaveService
 
         if (employee == null)
         {
-            throw new Exception("Employee profile not found.");
+            throw new NotFoundException("Employee profile not found.");
         }
 
-        if (dto.FromDate > dto.ToDate)
-        {
-            throw new Exception(
-                "From date cannot be later than to date.");
-        }
+        ValidateDateRange(dto.FromDate, dto.ToDate);
 
         var leave = new Leave
         {
@@ -159,6 +161,9 @@ public class LeaveService : ILeaveService
         {
             return null;
         }
+
+        ValidateDateRange(dto.FromDate, dto.ToDate);
+        ValidateStatus(dto.Status);
 
         leave.LeaveType = dto.LeaveType;
         leave.FromDate = dto.FromDate;
@@ -202,11 +207,31 @@ public class LeaveService : ILeaveService
             return null;
         }
 
+        ValidateStatus(dto.Status);
+
         leave.Status = dto.Status;
 
         await _repository.UpdateAsync(leave);
         await _repository.SaveChangesAsync();
 
         return Map(leave);
+    }
+
+    private static void ValidateDateRange(DateOnly from, DateOnly to)
+    {
+        if (from > to)
+        {
+            throw new BusinessRuleException(
+                "From date cannot be later than to date.");
+        }
+    }
+
+    private static void ValidateStatus(string status)
+    {
+        if (!AllowedStatuses.Contains(status, StringComparer.OrdinalIgnoreCase))
+        {
+            throw new BusinessRuleException(
+                "Leave status must be Pending, Approved or Rejected.");
+        }
     }
 }
