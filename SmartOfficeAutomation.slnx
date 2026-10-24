@@ -4,4 +4,5 @@
   <Project Path="SmartOffice.Domain/SmartOffice.Domain.csproj" />
   <Project Path="SmartOffice.Infrastructure/SmartOffice.Infrastructure.csproj" />
   <Project Path="SmartOffice.Persistence/SmartOffice.Persistence.csproj" />
+  <Project Path="SmartOffice.Tests/SmartOffice.Tests.csproj" />
 </Solution>

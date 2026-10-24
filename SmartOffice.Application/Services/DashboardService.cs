@@ -1,4 +1,5 @@
 using SmartOffice.Application.DTOs.Dashboard;
+using SmartOffice.Application.Exceptions;
 using SmartOffice.Application.Interfaces;
 
 namespace SmartOffice.Application.Services;
@@ -34,7 +35,7 @@ public class DashboardService : IDashboardService
 
         if (employeeId == null)
         {
-            throw new Exception(
+            throw new NotFoundException(
                 "Employee profile is not linked to this user.");
         }
 

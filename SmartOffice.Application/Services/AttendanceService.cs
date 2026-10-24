@@ -1,4 +1,5 @@
 using SmartOffice.Application.DTOs.Attendance;
+using SmartOffice.Application.Exceptions;
 using SmartOffice.Application.Interfaces;
 using SmartOffice.Domain.Entities;
 
@@ -8,13 +9,18 @@ public class AttendanceService : IAttendanceService
 {
     private readonly IAttendanceRepository _repository;
     private readonly IUserRepository _userRepository;
+    private readonly TimeProvider _time;
 
+    // TimeProvider is optional so the service works with plain DI (it falls
+    // back to the system clock) while unit tests can inject a fixed clock.
     public AttendanceService(
         IAttendanceRepository repository,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        TimeProvider? timeProvider = null)
     {
         _repository = repository;
         _userRepository = userRepository;
+        _time = timeProvider ?? TimeProvider.System;
     }
 
     private static AttendanceDto MapToDto(Attendance attendance)
@@ -62,7 +68,7 @@ public class AttendanceService : IAttendanceService
 
         if (employeeId == null)
         {
-            throw new Exception(
+            throw new NotFoundException(
                 "Employee profile is not linked to this user.");
         }
 
@@ -82,7 +88,7 @@ public class AttendanceService : IAttendanceService
 
         if (employeeId == null)
         {
-            throw new Exception(
+            throw new NotFoundException(
                 "Employee profile is not linked to this user.");
         }
 
@@ -105,7 +111,7 @@ public class AttendanceService : IAttendanceService
 
         if (employeeId == null)
         {
-            throw new Exception(
+            throw new NotFoundException(
                 "Employee profile is not linked to this user.");
         }
 
@@ -127,7 +133,7 @@ public class AttendanceService : IAttendanceService
 
         if (employee == null)
         {
-            throw new Exception("Employee not found.");
+            throw new NotFoundException("Employee not found.");
         }
 
         var attendance =
@@ -135,7 +141,7 @@ public class AttendanceService : IAttendanceService
 
         if (attendance != null)
         {
-            throw new Exception(
+            throw new ConflictException(
                 "Employee has already checked in today.");
         }
 
@@ -144,9 +150,9 @@ public class AttendanceService : IAttendanceService
             EmployeeId = dto.EmployeeId,
             Employee = employee,
             AttendanceDate =
-                DateOnly.FromDateTime(DateTime.Today),
+                DateOnly.FromDateTime(_time.GetLocalNow().DateTime),
             CheckInTime =
-                TimeOnly.FromDateTime(DateTime.Now),
+                TimeOnly.FromDateTime(_time.GetLocalNow().DateTime),
             Status = "Present",
             Remarks = dto.Remarks,
             WorkingHours = 0
@@ -167,24 +173,32 @@ public class AttendanceService : IAttendanceService
 
         if (attendance == null)
         {
-            throw new Exception(
+            throw new BusinessRuleException(
                 "Employee has not checked in today.");
         }
 
         if (attendance.CheckOutTime != null)
         {
-            throw new Exception(
+            throw new ConflictException(
                 "Employee has already checked out today.");
         }
 
-        attendance.CheckOutTime =
-            TimeOnly.FromDateTime(DateTime.Now);
-
-        attendance.Remarks = dto.Remarks;
+        var checkOutTime =
+            TimeOnly.FromDateTime(_time.GetLocalNow().DateTime);
 
         var workingHours =
-            attendance.CheckOutTime.Value.ToTimeSpan() -
+            checkOutTime.ToTimeSpan() -
             attendance.CheckInTime!.Value.ToTimeSpan();
+
+        if (workingHours < TimeSpan.Zero)
+        {
+            throw new BusinessRuleException(
+                "Check-out time cannot be earlier than check-in time.");
+        }
+
+        attendance.CheckOutTime = checkOutTime;
+
+        attendance.Remarks = dto.Remarks;
 
         attendance.WorkingHours = Math.Round(
             (decimal)workingHours.TotalHours,
@@ -195,7 +209,7 @@ public class AttendanceService : IAttendanceService
 
         attendance =
             await _repository.GetByIdAsync(attendance.Id)
-            ?? throw new Exception("Attendance not found.");
+            ?? throw new NotFoundException("Attendance not found.");
 
         return MapToDto(attendance);
     }
